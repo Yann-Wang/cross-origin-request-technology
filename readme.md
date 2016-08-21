@@ -11,63 +11,64 @@
 
 - server1服务器（localhost:3000） CORS.html
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>CORS(Cross Origin Resource Sharing)</h1>
+    <p></p>
+    <script>
+        function createCORSRequest(method, url){
+            var xhr = new XMLHttpRequest();
+            if("withCredentials" in xhr){
+                xhr.open(method, url, true);
+            } else if (typeof XDomainRequest != "undefined"){
+                xhr = new XDomainRequest();
+                xhr.open(method, url);
+            } else {
+                xhr = null;
+            }
+            return xhr;
+        }
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>CORS(Cross Origin Resource Sharing)</h1>
-        <p></p>
-        <script>
-            function createCORSRequest(method, url){
-                var xhr = new XMLHttpRequest();
-                if("withCredentials" in xhr){
-                    xhr.open(method, url, true);
-                } else if (typeof XDomainRequest != "undefined"){
-                    xhr = new XDomainRequest();
-                    xhr.open(method, url);
-                } else {
-                    xhr = null;
+        var request = createCORSRequest("get", "http://localhost:4000/CORS");
+        if (request){
+            request.onload = function(){
+                if (request.readyState == 4){
+                    //console.log(request.status, request.responseText);	
+                    document.getElementsByTagName("p")[0].innerHTML = "request.status: " + request.status + ", request.responseText: " + request.responseText;
                 }
-                return xhr;
-            }
-    
-            var request = createCORSRequest("get", "http://localhost:4000/CORS");
-            if (request){
-                request.onload = function(){
-                    if (request.readyState == 4){
-                        //console.log(request.status, request.responseText);	
-                        document.getElementsByTagName("p")[0].innerHTML = "request.status: " + request.status + ", request.responseText: " + request.responseText;
-                    }
-                    
-                };
-                request.send();
-            }
-        </script>
-    </body>
-    </html>
+                
+            };
+            request.send();
+        }
+    </script>
+</body>
+</html>
+```
 
 - server2服务器（localhost:4000） /page页 controller
 
+```javascript
+var express = require('express');
+var router = express.Router();
 
-    var express = require('express');
-    var router = express.Router();
-    
-    /* GET home page. */
-    router.get('/', function(req, res, next) {
-    
-    if(req.hostname == "localhost"){
-         res.set('Access-Control-Allow-Origin',"http://localhost:3000");
-         res.send({cnt: "success"});
-    }
-    
-    });
-    
-    module.exports = router;
+/* GET home page. */
+router.get('/', function(req, res, next) {
 
+if(req.hostname == "localhost"){
+     res.set('Access-Control-Allow-Origin',"http://localhost:3000");
+     res.send({cnt: "success"});
+}
+
+});
+
+module.exports = router;
+````
 
 #### 图像Ping
 - 动态创建图像经常用于图像Ping。图像Ping是与服务器进行简单、单向的跨域通信的一种方式。请求的数据是通过查询字符串形式发送的，而响应可以是任意内容，但通常是像素图或204响应。通过图像Ping，浏览器得不到任何具体的数据，但通过侦听load和error事件，它能知道响应是什么时候接收到的。
@@ -76,26 +77,27 @@
 
 - server1服务器（localhost:3000） imgPing.html
 
-
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>image Ping</h1>
-        <script>
-            var img = new Image();
-            
-            img.onload = img.onerror = function(){
-                 console.log("Done!");
-            }
-            
-            img.src = "http://localhost:4000/imgPing?name=imgPing";
-        </script>
-    </body>
-    </html>
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>image Ping</h1>
+    <script>
+        var img = new Image();
+        
+        img.onload = img.onerror = function(){
+             console.log("Done!");
+        }
+        
+        img.src = "http://localhost:4000/imgPing?name=imgPing";
+    </script>
+</body>
+</html>
+````
 
 - 这里创建了一个Image的实例，然后将onload和onerror事件处理程序指定为同一个函数。这样无论是什么响应，只要请求完成，就能得到通知。请求从设置src属性那一刻开始，而这个例子在请求中发送了一个name参数。
 
@@ -119,46 +121,48 @@
 
 - server1 中的  jsonp.html
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
+</head>
+<body>
+    <h1>JSONP</h1>
+    <h3></h3>
     
-    </head>
-    <body>
-        <h1>JSONP</h1>
-        <h3></h3>
+    <script>
+        function handleResponse(response){
+            document.getElementsByTagName("h3")[0].innerHTML = "You're at IP address " + response.ip + ", which is in " +
+            response.city + ", " + response.region_name;
+        }
         
-        <script>
-            function handleResponse(response){
-                document.getElementsByTagName("h3")[0].innerHTML = "You're at IP address " + response.ip + ", which is in " +
-                response.city + ", " + response.region_name;
-            }
-            
-            var script = document.createElement("script");
-            script.src = "http://localhost:4000/jsonp?callback=handleResponse";
-            document.body.insertBefore(script, document.body.firstChild);
-        
-        </script>
+        var script = document.createElement("script");
+        script.src = "http://localhost:4000/jsonp?callback=handleResponse";
+        document.body.insertBefore(script, document.body.firstChild);
     
-    </body>
-    </html>
+    </script>
+
+</body>
+</html>
+```
 
 - server2 中的 controller
 
+```javascript
+var express = require('express');
+var router = express.Router();
 
-    var express = require('express');
-    var router = express.Router();
-    
-    /* GET home page. */
-    router.get('/', function(req, res, next) {
-         console.log(req.query.callback);
-         res.send(req.query.callback + "({ip:'192.168.68.144',city:'hz',region_name:'zj'})");
-    });
-    
-    module.exports = router;
+/* GET home page. */
+router.get('/', function(req, res, next) {
+     console.log(req.query.callback);
+     res.send(req.query.callback + "({ip:'192.168.68.144',city:'hz',region_name:'zj'})");
+});
+
+module.exports = router;
+````
 
 #### Comet
 
@@ -174,71 +178,72 @@
 
 - longPolling.html
 
-
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>Long Polling</h1>
-        <ul>
-        
-        </ul>
-        <script>
-            var count = 0;
-            function LongPolling(){
-                var xhr = new XMLHttpRequest();
-                var url = 'http://localhost:4000/longPolling';
-                xhr.open('get', url, true); // async
-                xhr.onreadystatechange = function(){
-                    if (xhr.readyState == 4){
-                        console.log(xhr.status, xhr.responseText);
-                        if(xhr.status == 200){
-                            var li = document.createElement("li");
-                            li.innerHTML = xhr.responseText;
-                            document.getElementsByTagName("ul")[0].appendChild(li);
-                        }
-                    
-                        count++;
-                        if(count < 5){
-                            LongPolling();
-                        }
-                    
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Long Polling</h1>
+    <ul>
+    
+    </ul>
+    <script>
+        var count = 0;
+        function LongPolling(){
+            var xhr = new XMLHttpRequest();
+            var url = 'http://localhost:4000/longPolling';
+            xhr.open('get', url, true); // async
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4){
+                    console.log(xhr.status, xhr.responseText);
+                    if(xhr.status == 200){
+                        var li = document.createElement("li");
+                        li.innerHTML = xhr.responseText;
+                        document.getElementsByTagName("ul")[0].appendChild(li);
+                    }
+                
+                    count++;
+                    if(count < 5){
+                        LongPolling();
                     }
                 
                 }
-                
-                xhr.send();
+            
             }
             
-            LongPolling();
-        </script>
-    </body>
-    </html>
+            xhr.send();
+        }
+        
+        LongPolling();
+    </script>
+</body>
+</html>
+```
 
 - server2 long polling controller
 
+```javascript
+var express = require('express');
+var router = express.Router();
 
-    var express = require('express');
-    var router = express.Router();
+var count = 0;
+/* GET home page. */
+  router.get('/', function(req, res, next) {
+      if(req.hostname == "localhost"){
+          setTimeout(function(){
+              count++;
+              res.set('Access-Control-Allow-Origin',"http://localhost:3000");
+              res.send("access success: " + count);
+          }, 5000);
     
-    var count = 0;
-    /* GET home page. */
-      router.get('/', function(req, res, next) {
-          if(req.hostname == "localhost"){
-              setTimeout(function(){
-                  count++;
-                  res.set('Access-Control-Allow-Origin',"http://localhost:3000");
-                  res.send("access success: " + count);
-              }, 5000);
-        
-          }
-      });
-    
-    module.exports = router;
+      }
+  });
 
+module.exports = router;
+````
 
 ##### 流
 - 所有服务器端语言都支持打印到输出缓存，然后刷新的功能。这正是实现HTTP流的关键所在。
@@ -249,97 +254,99 @@
       
 - httpStream.html
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>HTTP Stream</h1>
+    <ul>
+        
+    </ul>
+    <script>
+        function createStreamingClient(url, progress, finished){
+            var xhr = new XMLHttpRequest();
+            var received = 0;
+            xhr.open("get", url, true);
+            xhr.onreadystatechange = function(){
+                var result;
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>HTTP Stream</h1>
-        <ul>
-            
-        </ul>
-        <script>
-            function createStreamingClient(url, progress, finished){
-                var xhr = new XMLHttpRequest();
-                var received = 0;
-                xhr.open("get", url, true);
-                xhr.onreadystatechange = function(){
-                    var result;
-    
-                    if (xhr.readyState == 3){
-                        //只取得最新数据并调整计数器
-                        result = xhr.responseText.substring(received);
-                        received += result.length;
-                        //调用progress回调函数
-                        progress(result);
-                    } else if (xhr.readyState == 4){
-                        finished(xhr.responseText);
-                    }
-                };
-                xhr.send(null);
-                return xhr;
-            }
-    
-            var client = createStreamingClient("http://localhost:4000/httpStreaming",function(data){
-                    var li = document.createElement("li");
-                    li.innerHTML = "Received: " + data;
-                    document.getElementsByTagName("ul")[0].appendChild(li);
-                }, function(data){
-                    var li = document.createElement("li");
-                    li.innerHTML = data;
-                    document.getElementsByTagName("ul")[0].appendChild(li);
-                });
-        </script>
-    </body>
-    </html>
+                if (xhr.readyState == 3){
+                    //只取得最新数据并调整计数器
+                    result = xhr.responseText.substring(received);
+                    received += result.length;
+                    //调用progress回调函数
+                    progress(result);
+                } else if (xhr.readyState == 4){
+                    finished(xhr.responseText);
+                }
+            };
+            xhr.send(null);
+            return xhr;
+        }
+
+        var client = createStreamingClient("http://localhost:4000/httpStreaming",function(data){
+                var li = document.createElement("li");
+                li.innerHTML = "Received: " + data;
+                document.getElementsByTagName("ul")[0].appendChild(li);
+            }, function(data){
+                var li = document.createElement("li");
+                li.innerHTML = data;
+                document.getElementsByTagName("ul")[0].appendChild(li);
+            });
+    </script>
+</body>
+</html>
+```
 
 - server2 http streaming controller
 
+```javascript
+var express = require('express');
+var router = express.Router();
 
-    var express = require('express');
-    var router = express.Router();
+/* GET home page. */
+router.get('/', function(req, res, next) {
     
-    /* GET home page. */
-    router.get('/', function(req, res, next) {
-        
-        if(req.hostname == "localhost"){
-            res.set('Access-Control-Allow-Origin',"http://localhost:3000");
-        res.set('Content-Type','text/html');  // html格式 可以边下载边解析
-            //res.send({cnt: "success"});
-    
-            var count = 0;
-            function resWrite(){
-                res.write("server2 data: " + count + "\n");
-                count ++;
-                if(count <5){
-                    delay(5000, resWrite);		
-                }else {
-                    resEnd();
-                }
-                
+    if(req.hostname == "localhost"){
+        res.set('Access-Control-Allow-Origin',"http://localhost:3000");
+    res.set('Content-Type','text/html');  // html格式 可以边下载边解析
+        //res.send({cnt: "success"});
+
+        var count = 0;
+        function resWrite(){
+            res.write("server2 data: " + count + "\n");
+            count ++;
+            if(count <5){
+                delay(5000, resWrite);		
+            }else {
+                resEnd();
             }
-    
-            function resEnd(){
-                res.end("server2 end");
-            }
-    
-            delay(5000, resWrite);
             
         }
+
+        function resEnd(){
+            res.end("server2 end");
+        }
+
+        delay(5000, resWrite);
         
-    });
-    
-    
-    function delay(time, ResWrite){
-        setTimeout(function(){
-            ResWrite();
-        }, time);
     }
     
-    module.exports = router;
+});
+
+
+function delay(time, ResWrite){
+    setTimeout(function(){
+        ResWrite();
+    }, time);
+}
+
+module.exports = router;
+````
 
 #### 服务器发送事件
 
@@ -353,65 +360,65 @@
 
 - sse.html
 
-
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>Server-Sent Events(SSE), 服务器发送事件</h1>
-        <ul>
-            
-        </ul>
-        <script>
-            var source = new EventSource("http://localhost:4000/SSE");
-            source.onmessage = function(event){
-                var data = event.data;
-                //console.log(data);
-                // 处理数据
-                var li = document.createElement("li");
-                li.innerHTML = "Received: " + data;
-                document.getElementsByTagName("ul")[0].appendChild(li);
-    
-                //source.close();
-            }
-    
-            setTimeout(function(){
-                source.close();
-            }, 20 * 1000);
-        </script>
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Server-Sent Events(SSE), 服务器发送事件</h1>
+    <ul>
         
-    </body>
-    </html>
+    </ul>
+    <script>
+        var source = new EventSource("http://localhost:4000/SSE");
+        source.onmessage = function(event){
+            var data = event.data;
+            //console.log(data);
+            // 处理数据
+            var li = document.createElement("li");
+            li.innerHTML = "Received: " + data;
+            document.getElementsByTagName("ul")[0].appendChild(li);
 
+            //source.close();
+        }
+
+        setTimeout(function(){
+            source.close();
+        }, 20 * 1000);
+    </script>
+    
+</body>
+</html>
+```
 
 - server2 sse controller
 
+```javascript
+var express = require('express');
+var router = express.Router();
 
-    var express = require('express');
-    var router = express.Router();
-    
-    var count = 0;
-    var arrayData =["this","is","a","server","sent","event"];
-    var aDL = arrayData.length;
-    /* GET home page. */
-    router.get('/', function(req, res, next) {
-      if(req.hostname == "localhost"){
-            count++;
-            res.set('Access-Control-Allow-Origin',"http://localhost:3000");
-            res.set('Content-Type','text/event-stream'); 
-            res.set('Cache-Control','no-cache');
-            res.set('Connection','keep-alive');
-            //data字段后必须有空行
-            res.send("data: " + arrayData[count%aDL] + "\n\n id: " + count); 
-            
-        }
-    });
-    
-    module.exports = router;
+var count = 0;
+var arrayData =["this","is","a","server","sent","event"];
+var aDL = arrayData.length;
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  if(req.hostname == "localhost"){
+        count++;
+        res.set('Access-Control-Allow-Origin',"http://localhost:3000");
+        res.set('Content-Type','text/event-stream'); 
+        res.set('Cache-Control','no-cache');
+        res.set('Connection','keep-alive');
+        //data字段后必须有空行
+        res.send("data: " + arrayData[count%aDL] + "\n\n id: " + count); 
+        
+    }
+});
 
+module.exports = router;
+````
 
 #### Web Socket
 
@@ -423,95 +430,96 @@
 
 - server1 WebSocket.html
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Web Sockets</h1>
+    <ul>
+        
+    </ul>
+    <script>
+        var socket = new WebSocket("ws://localhost:4000/WebSocket");
+        var message = { text: "hello server2", id: 1};
+        
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>Web Sockets</h1>
-        <ul>
-            
-        </ul>
-        <script>
-            var socket = new WebSocket("ws://localhost:4000/WebSocket");
-            var message = { text: "hello server2", id: 1};
-            
-    
-            socket.onopen = function(){
-                socket.send(JSON.stringify(message)); // 发送字符串
-            }
-    
-            socket.onmessage = function(event){
-                // MessageEvent 对象中的属性: 
-                //{isTrusted: true, data: "{"data":"hello client"}", origin: "ws://localhost:4000", lastEventId: "", .... }
-                //console.log(event);
-                var data = JSON.parse(event.data);
-    
-                //处理数据
-                var li = document.createElement("li");
-                li.innerHTML = "Received: " + data.data;
-                document.getElementsByTagName("ul")[0].appendChild(li);
-    
-                socket.close();
-    
-            }
-    
-            socket.onclose = function(){
-                console.log("Connection closed.");
-            }
-    
-            socket.onerror = function(){
-                console.log("Connection error.");	
-            }
-        </script>
-    </body>
-    </html>
+        socket.onopen = function(){
+            socket.send(JSON.stringify(message)); // 发送字符串
+        }
+
+        socket.onmessage = function(event){
+            // MessageEvent 对象中的属性: 
+            //{isTrusted: true, data: "{"data":"hello client"}", origin: "ws://localhost:4000", lastEventId: "", .... }
+            //console.log(event);
+            var data = JSON.parse(event.data);
+
+            //处理数据
+            var li = document.createElement("li");
+            li.innerHTML = "Received: " + data.data;
+            document.getElementsByTagName("ul")[0].appendChild(li);
+
+            socket.close();
+
+        }
+
+        socket.onclose = function(){
+            console.log("Connection closed.");
+        }
+
+        socket.onerror = function(){
+            console.log("Connection error.");	
+        }
+    </script>
+</body>
+</html>
+```
 
 - server2  web socket controller
 
+```javascript
+var app = require('../app');
+var debug = require('debug')('server2:server');
+var http = require('http');
+var url = require('url');
+var WebSocketServer = require('ws').Server;
 
-    var app = require('../app');
-    var debug = require('debug')('server2:server');
-    var http = require('http');
-    var url = require('url');
-    var WebSocketServer = require('ws').Server;
-    
-    /**
-     * Get port from environment and store in Express.
-     */
-    
-    var port = normalizePort(process.env.PORT || '4000');
-    app.set('port', port);
-    
-    /**
-     * Create HTTP server.
-     */
-    
-    var server = http.createServer(app);
-    var wss = new WebSocketServer({ server: server })
-    
-    
-    wss.on('connection', function connection(ws) {
-      var location = url.parse(ws.upgradeReq.url, true);
-      // you might use location.query.access_token to authenticate or share sessions 
-      // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312) 
-    
-      //console.log(location);
-      if(location.path == "/WebSocket"){
-    
-          ws.on('message', function incoming(message) {
-            //console.log(typeof message); // string
-            var msg = JSON.parse(message);
-            console.log('received: %s', msg.text);
-            ws.send(JSON.stringify({data:'hello client',id:msg.id}));
-          });
-      }
-    
-    });
+/**
+ * Get port from environment and store in Express.
+ */
 
+var port = normalizePort(process.env.PORT || '4000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+var wss = new WebSocketServer({ server: server })
+
+
+wss.on('connection', function connection(ws) {
+  var location = url.parse(ws.upgradeReq.url, true);
+  // you might use location.query.access_token to authenticate or share sessions 
+  // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312) 
+
+  //console.log(location);
+  if(location.path == "/WebSocket"){
+
+      ws.on('message', function incoming(message) {
+        //console.log(typeof message); // string
+        var msg = JSON.parse(message);
+        console.log('received: %s', msg.text);
+        ws.send(JSON.stringify({data:'hello client',id:msg.id}));
+      });
+  }
+
+});
+```
 
 #### 备注
  
