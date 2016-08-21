@@ -1,4 +1,4 @@
-## 跨域请求技术 代码实现
+## 跨域请求技术 前后端代码实现
 1. 跨域资源共享CORS（Cross-Origin Resource Sharing）------**xhr  需要服务端返回带有  `Access-Control-Allow-Origin` 的响应头**
 2. 图像Ping------**动态生成img标签**
 3. JSONP------**动态生成script标签**
@@ -550,5 +550,5 @@ wss.on('connection', function connection(ws) {
 
 #### 备注
  
-- 本文参考《JavaScript 高级程序设计》第三版  21.4 ， 21.5   这两节， 并 对每种跨域请求技术 做了实践。
+- 本文参考《JavaScript 高级程序设计》第三版 21.4,21.5这两节， 并对每种跨域请求技术做了前端和后端代码实现。
 
