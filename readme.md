@@ -10,10 +10,12 @@
 #### 启动服务
 ```shell
 cd server1
+npm install
 node ./bin/www
 
 //new tab
 cd server2
+npm install
 node ./bin/www
 ```
 
