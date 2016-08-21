@@ -6,6 +6,18 @@
 5. 服务器发送事件------**EventSource 对象**
 6. Web Socket------**WebSocket 对象**
 
+
+#### 启动服务
+```shell
+cd server1
+node ./bin/www
+
+//new tab
+cd server2
+node ./bin/www
+```
+
+
 #### 跨域资源共享CORS（Cross-Origin Resource Sharing）
 - 请求地址： http://localhost:3000/
 
@@ -51,7 +63,7 @@
 </html>
 ```
 
-- server2服务器（localhost:4000） /page页 controller
+- server2服务器（localhost:4000） /CORS controller
 
 ```javascript
 var express = require('express');
@@ -107,6 +119,21 @@ module.exports = router;
 
 - 因此， 图像Ping只能用于浏览器与服务器间的单向通信。
 
+- server2 /imgPing controller
+
+```javascript
+var express = require('express');
+var router = express.Router();
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+	console.log(req.query.name);
+  	res.send("got it.");
+});
+
+module.exports = router;
+
+```
 
 #### JSONP
 - JSONP是JSON with padding (填充式JSON或参数式JSON) 的简写，是应用JSON的一种新方法。 被包含在函数调用中的JSON。
@@ -149,7 +176,7 @@ module.exports = router;
 </html>
 ```
 
-- server2 中的 controller
+- server2 /jsonp controller
 
 ```javascript
 var express = require('express');
@@ -223,7 +250,7 @@ module.exports = router;
 </html>
 ```
 
-- server2 long polling controller
+- server2 /longPolling controller
 
 ```javascript
 var express = require('express');
@@ -302,7 +329,7 @@ module.exports = router;
 </html>
 ```
 
-- server2 http streaming controller
+- server2 /httpStreaming controller
 
 ```javascript
 var express = require('express');
@@ -394,7 +421,7 @@ module.exports = router;
 </html>
 ```
 
-- server2 sse controller
+- server2 /SSE controller
 
 ```javascript
 var express = require('express');
@@ -478,7 +505,7 @@ module.exports = router;
 </html>
 ```
 
-- server2  web socket controller
+- server2  /WebSocket controller
 
 ```javascript
 var app = require('../app');
