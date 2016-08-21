@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>Long Polling</h1>
+	<ul>
+		
+	</ul>
+	<script>
+		var count = 0;
+		function LongPolling(){
+			var xhr = new XMLHttpRequest();
+			var url = 'http://localhost:4000/longPolling';
+			xhr.open('get', url, true); // async
+			xhr.onreadystatechange = function(){
+				if (xhr.readyState == 4){
+					console.log(xhr.status, xhr.responseText);
+					if(xhr.status == 200){
+						var li = document.createElement("li");
+						li.innerHTML = xhr.responseText;
+						document.getElementsByTagName("ul")[0].appendChild(li);
+					}
+
+					count++;
+					if(count < 5){
+						LongPolling();	
+					}
+					
+				}
+
+			}
+
+			xhr.send();
+		}
+
+		LongPolling();
+	</script>
+</body>
+</html>

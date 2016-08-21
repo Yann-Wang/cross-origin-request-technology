@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>Web Sockets</h1>
+	<ul>
+		
+	</ul>
+	<script>
+		var socket = new WebSocket("ws://localhost:4000/WebSocket");
+		var message = { text: "hello server2", id: 1};
+		
+
+		socket.onopen = function(){
+			socket.send(JSON.stringify(message)); // 发送字符串
+		}
+
+		socket.onmessage = function(event){
+			// MessageEvent 对象中的属性: 
+			//{isTrusted: true, data: "{"data":"hello client"}", origin: "ws://localhost:4000", lastEventId: "", .... }
+			//console.log(event);
+			var data = JSON.parse(event.data);
+
+			//处理数据
+			var li = document.createElement("li");
+			li.innerHTML = "Received: " + data.data;
+			document.getElementsByTagName("ul")[0].appendChild(li);
+
+			socket.close();
+
+		}
+
+		socket.onclose = function(){
+			console.log("Connection closed.");
+		}
+
+		socket.onerror = function(){
+			console.log("Connection error.");	
+		}
+	</script>
+</body>
+</html>

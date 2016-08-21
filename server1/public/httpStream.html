@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>HTTP Stream</h1>
+	<ul>
+		
+	</ul>
+	<script>
+		function createStreamingClient(url, progress, finished){
+			var xhr = new XMLHttpRequest();
+			var received = 0;
+			xhr.open("get", url, true);
+			xhr.onreadystatechange = function(){
+				var result;
+
+				if (xhr.readyState == 3){
+					//只取得最新数据并调整计数器
+					result = xhr.responseText.substring(received);
+					received += result.length;
+					//调用progress回调函数
+					progress(result);
+				} else if (xhr.readyState == 4){
+					finished(xhr.responseText);
+				}
+			};
+			xhr.send(null);
+			return xhr;
+		}
+
+		var client = createStreamingClient("http://localhost:4000/httpStreaming",function(data){
+				var li = document.createElement("li");
+				li.innerHTML = "Received: " + data;
+				document.getElementsByTagName("ul")[0].appendChild(li);
+			}, function(data){
+				var li = document.createElement("li");
+				li.innerHTML = data;
+				document.getElementsByTagName("ul")[0].appendChild(li);
+			});
+	</script>
+</body>
+</html>

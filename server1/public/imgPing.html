@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<h1>image Ping</h1>
+	<p></p>
+	<script>
+		var img = new Image();
+		img.onload = img.onerror = function(){
+			//console.log("Done!");
+			document.getElementsByTagName("p")[0].innerHTML = "Done!";
+		}
+		img.src = "http://localhost:4000/imgPing?name=imgPing";
+	</script>
+</body>
+</html>
