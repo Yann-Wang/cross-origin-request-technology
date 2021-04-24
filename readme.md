@@ -5,6 +5,8 @@
 4. Comet `['kɒmɪt]`------**长链接   http 流**
 5. 服务器发送事件------**EventSource 对象**
 6. Web Socket------**WebSocket 对象**
+7. script脚本跨域请求------**Error事件读取报错信息**
+8. script脚本跨域预加载------**Error事件读取报错信息**
 
 
 #### 启动服务
@@ -549,6 +551,172 @@ wss.on('connection', function connection(ws) {
 
 });
 ```
+
+#### script脚本跨域
+
+- 请求地址： http://localhost:3000/crossoriginScript
+
+- server1 crossoriginScript.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+	<title>Document</title>
+	<script>
+        window.errorList = [];
+        window.vconsoleLoaded = false;
+        window.addEventListener('error', function(e) {
+          if (window.vconsoleLoaded) {
+            console.error(e);
+            console.error('Erro type: ', e.type);
+            console.error('Error message: ', e.message);
+            console.error('Error filename: ', e.filename);
+            console.error('Error lineno: ', e.lineno);
+            console.error('Error colno: ', e.colno);
+          } else {
+            window.errorList.push(e, e.type, e.message, e.filename, e.lineno, e.colno);
+          }
+        }, false);
+    
+          var s = document.createElement('script');
+          s.onload = function () {
+            var vConsole = new VConsole();
+            console.log('cxssdfs')
+            window.vconsoleLoaded = true;
+            if (window.errorList.length) {
+              window.errorList.forEach(it => {
+                console.error(it);
+              })
+            }
+          };
+          s.onerror = function() {};
+          s.src = './js/vconsole.min.js';
+          s.async = false;
+          document.getElementsByTagName("head")[0].appendChild(s);
+    </script>
+    <link href=http://localhost:4000/prefetch_demo.js rel=prefetch >
+</head>
+<body>
+	<h1>crossorigin script</h1>
+	<h3></h3>
+
+	<!-- <script src="http://localhost:4000/crossoriginScript.js"></script> -->
+    <!-- <script src="http://localhost:4000/prefetch_demo.js"></script> -->
+    <script>
+        // setTimeout(() => {
+        //     foo();
+        // }, 3000)
+        test();
+    </script>
+
+	
+</body>
+</html>
+```
+
+-server2 /crossoriginScript.js controller
+
+```javascript
+var express = require('express');
+var path = require('path');
+var router = express.Router();
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.sendFile(path.join(__dirname, '/../static/crossoriginScript.js'));
+});
+
+module.exports = router;
+
+```
+
+#### script脚本跨域预加载 prefetch/preload
+
+- 请求地址： http://localhost:3000/prefetch
+
+- server1 prefetch.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+	<title>Document</title>
+	<script>
+        window.vconsoleLoaded = false;
+        window.addEventListener('error', function(e) {
+          console.error(e);
+          console.error('Erro type: ', e.type);
+          console.error('Error message: ', e.message);
+          console.error('Error filename: ', e.filename);
+          console.error('Error lineno: ', e.lineno);
+          console.error('Error colno: ', e.colno);
+        }, false);
+    
+        var s = document.createElement('script');
+        s.onload = function () {
+          var vConsole = new VConsole();
+          console.log('cxssdfs')
+        };
+        s.onerror = function() {};
+        s.src = './js/vconsole.min.js';
+        s.async = false;
+        document.getElementsByTagName("head")[0].appendChild(s);
+    </script>
+    <link rel="preload" as="script" href="http://localhost:4000/prefetch_demo.js" crossorigin="anonymous">
+</head>
+<body>
+	<h1>crossorigin script</h1>
+	<h3 onclick="ttt()">点击获取静态资源并执行相关方法</h3>
+
+	<!-- <script src="http://localhost:4000/crossoriginScript.js"></script> -->
+    <!-- <script src="http://localhost:4000/prefetch_demo.js"></script> -->
+    <script>
+        
+        function ttt() {
+          var s = document.createElement('script');
+          s.onload = function () {
+            window.dd();
+          };
+          s.crossOrigin = true;
+          s.onerror = function() {};
+          s.src = 'http://localhost:4000/prefetch_demo.js';
+          s.async = false;
+          document.body.appendChild(s);
+          
+        }
+        
+    </script>
+
+	
+</body>
+</html>
+```
+
+-server2 /prefetch_demo.js controller
+
+```javascript
+var express = require('express');
+var path = require('path');
+var router = express.Router();
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.sendFile(path.join(__dirname, '/../static/prefetch_demo.js'));
+});
+
+module.exports = router;
+
+```
+
 
 #### 备注
  

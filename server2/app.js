@@ -13,6 +13,8 @@ var jsonp =  require('./routes/jsonp');
 var longPolling = require('./routes/longPolling');
 var httpStreaming = require('./routes/httpStreaming');
 var sse = require('./routes/sse');
+var crossoriginScript = require('./routes/crossoriginScript');
+var prefetchScript = require('./routes/prefetchScript')
 
 
 var app = express();
@@ -38,6 +40,8 @@ app.use('/jsonp', jsonp);  // mount jsonp
 app.use('/longPolling', longPolling); // mount long polling
 app.use('/httpStreaming', httpStreaming); //mount http streaming
 app.use('/SSE', sse);  // mount sse
+app.use('/crossoriginScript.js', crossoriginScript);
+app.use('/prefetch_demo.js', prefetchScript);  
 
 
 // catch 404 and forward to error handler

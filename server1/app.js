@@ -13,6 +13,8 @@ var longPolling = require('./routes/longPolling');
 var httpStreaming = require('./routes/httpStreaming');
 var sse = require('./routes/sse');
 var WebSocket = require('./routes/WebSocket');
+var crossoriginScript = require('./routes/crossoriginScript');
+var prefetch = require('./routes/prefetch');
 
 var app = express();
 
@@ -36,6 +38,8 @@ app.use('/longPolling', longPolling); // mount long polling
 app.use('/httpStreaming', httpStreaming); //mount http streaming
 app.use('/sse', sse); // mount Server-Sent Events
 app.use('/WebSocket', WebSocket);  // mount WebSocket
+app.use('/crossoriginScript', crossoriginScript);
+app.use('/prefetch', prefetch);  
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
